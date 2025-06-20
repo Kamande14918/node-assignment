@@ -1,1 +1,0 @@
-SELECT o.order_id, SUM(price * quantity) total_price FROM orders o JOIN line_items l ON o.order_id = l.order_id JOIN products p ON l.product_id = p.product_id GROUP BY o.order_id ORDER BY o.order_id LIMIT 5;
