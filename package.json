@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tdd": "jest --testPathPattern=^./tdd/.*\\.test\\.js$"
+    "tdd": "./tdd.sh"
   },
   "author": "Code the Dream",
   "license": "ISC",
