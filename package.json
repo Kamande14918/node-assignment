@@ -5,8 +5,7 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "test": "jest",
-    "tdd": "./tdd.sh"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
