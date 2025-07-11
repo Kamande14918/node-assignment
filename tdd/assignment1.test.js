@@ -3,7 +3,7 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 
 describe('Week 1 Assignment Solution Tests', () => {
-  const assignmentDir = path.join(__dirname, '../Week-1');
+  const assignmentDir = path.join(__dirname, '../assignment1');
   const sampleFilesDir = path.join(assignmentDir, 'sample-files');
 
   test('globals-demo.js outputs correct globals', () => {
