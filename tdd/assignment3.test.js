@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../app");
+const app = require("../week-3-middleware/app");
 const fs = require("fs");
 const path = require("path");
 
