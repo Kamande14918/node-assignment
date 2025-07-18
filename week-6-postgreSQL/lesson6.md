@@ -12,7 +12,7 @@ You can run SQL commands directly from your terminal using the `psql` command-li
 
 2. **Connect to your Neon database:**
    ```bash
-   psql "postgresql://neondb_owner:npg_BbUPHQ3k7vwM@ep-fancy-art-a4fdltb3-pooler.us-east-1.aws.neon.tech/testdb?sslmode=require"
+   psql "postgresql://postgres:yourpassword@localhost:5432/yourdatabase"
    ```
    - Paste your full connection string in quotes.
 
