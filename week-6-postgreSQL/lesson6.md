@@ -24,7 +24,7 @@ You can run SQL commands directly from your terminal using the `psql` command-li
 ### b. Run a SQL File
 If you have a file (e.g., `tasks-schema.sql`):
 ```bash
-psql "postgresql://neondb_owner:npg_BbUPHQ3k7vwM@ep-fancy-art-a4fdltb3-pooler.us-east-1.aws.neon.tech/testdb?sslmode=require" -f week-6-postgreSQL/tasks-schema.sql
+psql "postgresql://postgres:yourpassword@localhost:5432/yourdatabase" -f week-6-postgreSQL/tasks-schema.sql
 ```
 
 ### c. Use a GUI Client
