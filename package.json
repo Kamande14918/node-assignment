@@ -6,12 +6,16 @@
   "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tdd": "./tdd.sh"
+    "tdd": "./tdd.sh",
+    "week6": "nodemon ./week-6-postgreSQL/app"
   },
   "author": "Code the Dream",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.7"
+    "csv-parser": "^3.2.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "prettier": "^3.5.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
@@ -19,7 +23,8 @@
     "eslint": "^9.24.0",
     "globals": "^16.0.0",
     "jest": "^30.0.4",
-    "pg": "^8.14.1",
+    "nodemon": "^3.1.10",
+    "pg": "^8.16.3",
     "pg-cursor": "^2.13.1",
     "prettier": "^3.5.3"
   }
