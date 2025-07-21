@@ -93,3 +93,13 @@ These are the steps:
 2. Go to your `node-homework` repository on GitHub.  Select your `assignmentx` branch, the branch you were working on.  Create a pull request.  The target of the pull request should be the main branch of your GitHub repository.
 3. Once the pull request (PR) is created, your browser contains the URL of the PR. Copy that to your clipboard.  Include that link in your homework submission.
 
+## Project Structure
+
+- `assignment1/`, `assignment2/`, ...: Folders for assignments or parts of assignments that are not part of the final project.
+- `tdd/`: All TDD for homework assignments.
+- `tests/`: For assignment9 on testing.
+- `project-links.txt`: Record links to PRs for the React repository and URLs of deployed React and Node apps.
+- Usual Express files (e.g., `app.js`, `routes/`, `controllers/`, `utils/`, `models/`, `tests/`, etc.) will be present in the root or as needed for the Node/Express app.
+- `package.json`: Single package file for the whole project.
+- The repository is structured for cloud deployment.
+
