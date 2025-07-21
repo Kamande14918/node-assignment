@@ -1,5 +1,4 @@
-const { Pool } = require('pg');
-const pool = new Pool();
+const pool = require('./db');
 
 exports.getTasks = async (req, res) => {
   try {
@@ -18,9 +17,6 @@ exports.createTask = async (req, res) => {
       [title]
     );
     res.status(201).json(result.rows[0]);
-    console.log('Creating task with title:', title);
-console.log('Using DB:', pool.options.connectionString);
-
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -28,12 +24,20 @@ console.log('Using DB:', pool.options.connectionString);
 
 exports.updateTask = async (req, res) => {
   const { id } = req.params;
-  const { completed } = req.body;
+  const { completed, title } = req.body;
   try {
-    const result = await pool.query(
-      'UPDATE tasks SET completed = $1 WHERE id = $2 RETURNING *',
-      [completed, id]
-    );
+    let result;
+    if (title !== undefined) {
+      result = await pool.query(
+        'UPDATE tasks SET title = $1, completed = $2 WHERE id = $3 RETURNING *',
+        [title, completed, id]
+      );
+    } else {
+      result = await pool.query(
+        'UPDATE tasks SET completed = $1 WHERE id = $2 RETURNING *',
+        [completed, id]
+      );
+    }
     res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });

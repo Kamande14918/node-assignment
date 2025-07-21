@@ -1,26 +1,26 @@
 const express = require('express');
-const pool = require('./db');
+const { PrismaClient } = require('@prisma/client');
 require('dotenv').config();
-console.log(process.env.DATABASE_URI);
+
+const prisma = new PrismaClient();
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
+const taskRoutes = require('./taskRoutes');
+app.use('/api', taskRoutes);
+
 // Health check endpoint
 app.get('/health', async (req, res) => {
   try {
-    await pool.query('SELECT 1');
+    await prisma.$queryRaw`SELECT 1`;
     res.json({ status: 'ok', db: 'connected' });
   } catch (err) {
     res.status(500).json({ status: 'error', db: 'not connected', error: err.message });
   }
 });
 
-const todoRoutes = require('./taskRoutes');
-app.use('/api', todoRoutes);
-
-// Start server
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Prisma server running on port ${port}`);
 }); 
