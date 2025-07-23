@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tdd": "./tdd.sh",
-    "week3": "nodemon ./week-3-middleware/app"
+    "week3": "nodemon ./week-3-middleware/app",
+    "lesson9TDD": "npx cross-env NODE_ENV=test node ./lesson11TDD/jestConfig/run-lesson9-tdd.js"
   },
   "author": "Code the Dream",
   "license": "ISC",
