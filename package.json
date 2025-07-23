@@ -6,12 +6,15 @@
   "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tdd": "./tdd.sh"
+    "tdd": "./tdd.sh",
+    "week3": "nodemon ./week-3-middleware/app"
   },
   "author": "Code the Dream",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
@@ -20,8 +23,10 @@
     "globals": "^16.0.0",
     "nodemon": "^3.1.10",
     "jest": "^30.0.4",
+    "nodemon": "^3.1.10",
     "pg": "^8.14.1",
     "pg-cursor": "^2.13.1",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "supertest": "^7.1.3"
   }
 }
