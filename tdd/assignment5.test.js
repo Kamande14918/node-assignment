@@ -2,7 +2,7 @@ const { Client } = require("pg");
 const readline = require("readline");
 const fs = require("fs").promises;
 
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config();
 let client = null;
 let connected_to_database = false;
 let connected_to_homework_file = false;
@@ -62,7 +62,7 @@ beforeAll(async () => {
   }
   if (connected_to_database) {
     try {
-      const homework_fd = await fs.open("./assignment4-sql.txt");
+      const homework_fd = await fs.open("./assignment5/assignment5-sql.txt");
       const homework_stream = homework_fd.createReadStream();
       const rl = readline.createInterface({
         input: homework_stream,
