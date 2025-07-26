@@ -6,6 +6,7 @@ const {
   update,
   deleteTask,
 } = require("../controllers/taskController");
+const { login, register, logoff } = require("../controllers/userController");
 
 // a few useful globals
 let user1 = null;
@@ -17,7 +18,7 @@ let saveTaskId = null;
 const { storedUsers, setLoggedOnUser } = require("../util/memoryStore.js")
 
 beforeAll(async () => {
-      user1 = {
+  user1 = {
     email: "bob@sample.com",
     password: "Pa$$word20",
     name: "Bob",
@@ -30,6 +31,77 @@ beforeAll(async () => {
   storedUsers.push(user1);
   storedUsers.push(user2);
   setLoggedOnUser(user1);
+});
+
+describe("testing login, register, and logoff", () => {
+  it("You can register a user.", async () => {
+    const req = httpMocks.createRequest({
+      method: "POST",
+      body: {
+        email: "jim@sample.com",
+        name: "Jim",
+        password: "Pa$$word20",
+      },
+    });
+    saveRes = httpMocks.createResponse();
+    await register(req, saveRes);
+    expect(saveRes.statusCode).toBe(201);
+  });
+  it("The user can be logged on", async () => {
+    const req = httpMocks.createRequest({
+      method: "POST",
+      body: { email: "jim@sample.com", password: "Pa$$word20" },
+    });
+    saveRes = httpMocks.createResponse();
+    await login(req, saveRes); // no need for await here
+    expect(saveRes.statusCode).toBe(200); // success!
+  });
+
+  it("returns the expected name.", () => {
+    saveData = saveRes._getJSONData();
+    expect(saveData.name).toBe("Bob");
+  });
+  it("A logon attempt with a bad password returns a 401", async () => {
+    const req = httpMocks.createRequest({
+      method: "POST",
+      body: { email: "jim@sample.com", password: "bad password" },
+    });
+    saveRes = httpMocks.createResponse();
+    await login(req, saveRes);
+    expect(saveRes.statusCode).toBe(401);
+  });
+  it("You can register an additional user.", async () => {
+    const req = httpMocks.createRequest({
+      method: "POST",
+      body: {
+        email: "manuel@sample.com",
+        name: "Manuel",
+        password: "Pa$$word20",
+      },
+    });
+    saveRes = httpMocks.createResponse();
+    await register(req, saveRes);
+    expect(saveRes.statusCode).toBe(201);
+  });
+  it("You can logon as that new user.", async () => {
+    const req = httpMocks.createRequest({
+      method: "POST",
+      body: { email: "manuel@sample.com", password: "Pa$$word20" },
+    });
+    saveRes = httpMocks.createResponse();
+    const jsonPromise = saveRes.jsonPromise();
+    login(req, saveRes);
+    await jsonPromise;
+    expect(saveRes.statusCode).toBe(200);
+  });
+  it("You can now logoff.", async () => {
+    const req = httpMocks.createRequest({
+      method: "POST",
+    });
+    saveRes = httpMocks.createResponse();
+    await logoff(req, saveRes);
+    expect(saveRes.statusCode).toBe(200);
+  });
 });
 
 describe("testing task creation", () => {
@@ -74,10 +146,20 @@ describe("getting created tasks", () => {
   it("The first array object does not contain a userId.", () => {
     expect(saveData[0].userId).not.toBeDefined();
   });
+  it("If get the list of tasks using the userId from user2, you get a 404.", async () => {
+    const req = httpMocks.createRequest({
+      method: "GET",
+    });
+    setLoggedOnUser(user2)
+    saveRes = httpMocks.createResponse();
+    await index(req, saveRes);
+    expect(saveRes.statusCode).toBe(404);
+  });
   it("You can retrieve the first array object using the `show()` method of the controller.", async () => {
     const req = httpMocks.createRequest({
       method: "GET",
     });
+    setLoggedOnUser(user1)
     req.params = { id: saveTaskId };
     saveRes = httpMocks.createResponse();
     await show(req, saveRes);
@@ -96,11 +178,31 @@ describe("testing the update and delete of tasks.", () => {
     await update(req, saveRes);
     expect(saveRes.statusCode).toBe(200);
   });
-
+  it("User2 can't do this.", async () => {
+    const req = httpMocks.createRequest({
+      method: "PATCH",
+    });
+    setLoggedOnUser(user2);
+    req.params = { id: saveTaskId };
+    req.body = { isCompleted: true };
+    saveRes = httpMocks.createResponse();
+    await update(req, saveRes);
+    expect(saveRes.statusCode).not.toBe(200);
+  });
+    it("User2 can't delete this task.", async () => {
+    const req = httpMocks.createRequest({
+      method: "DELETE",
+    });
+    req.params = { id: saveTaskId };
+    saveRes = httpMocks.createResponse();
+    await deleteTask(req, saveRes);
+    expect(saveRes.statusCode).not.toBe(200);
+  });
   it("User1 can delete this task.", async () => {
     const req = httpMocks.createRequest({
       method: "DELETE",
     });
+    setLoggedOnUser(user1)
     req.params = { id: saveTaskId };
     saveRes = httpMocks.createResponse();
     await deleteTask(req, saveRes);
@@ -121,7 +223,7 @@ let patchTaskSchema = null;
 try {
 userSchema  = require("../validation/userSchema").userSchema;
 ({ taskSchema, patchTaskSchema } = require("../validation/taskSchema"));
-} catch (e) {
+} catch {
     // these won't be built at the start, but we want the test to proceed
 }
 it("finds the user and task schemas", ()=>{
