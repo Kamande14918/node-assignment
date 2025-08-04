@@ -29,7 +29,8 @@ project-root/
 ├── package.json
 └── week-6-prisma/
     ├── prisma/
-    │   └── schema.prisma
+    │   ├── schema.prisma
+    │   └── db.js
     ├── app.js
     ├── taskController.js
     └── taskRoutes.js
@@ -69,14 +70,25 @@ Create the following files inside `week-6-prisma/`:
 - `app.js` (main Express app)
 - `taskController.js` (controller logic)
 - `taskRoutes.js` (Express routes)
+- `prisma/db.js` (Prisma client instance)
 
 Below are the full code examples for each file. You can copy and use them directly:
+
+### prisma/db.js
+```js
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
+
+module.exports = prisma;
+```
 
 ### app.js
 ```js
 const express = require('express');
-const taskRoutes = require('./taskRoutes');
 require('dotenv').config();
+
+const taskRoutes = require('./taskRoutes');
+const prisma = require('./prisma/db');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -85,8 +97,13 @@ app.use(express.json());
 app.use('/api/tasks', taskRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', db: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', db: 'not connected', error: err.message });
+  }
 });
 
 app.listen(port, () => {
@@ -96,10 +113,9 @@ app.listen(port, () => {
 
 ### taskController.js
 ```js
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('./prisma/db');
 
-exports.getAllTasks = async (req, res) => {
+exports.getTasks = async (req, res) => {
   try {
     const tasks = await prisma.task.findMany();
     res.json(tasks);
@@ -150,7 +166,7 @@ const express = require('express');
 const router = express.Router();
 const taskController = require('./taskController');
 
-router.get('/', taskController.getAllTasks);
+router.get('/', taskController.getTasks);
 router.post('/', taskController.createTask);
 router.put('/:id', taskController.updateTask);
 router.delete('/:id', taskController.deleteTask);

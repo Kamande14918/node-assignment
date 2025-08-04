@@ -1,15 +1,14 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 require('dotenv').config();
 
-const prisma = new PrismaClient();
+const taskRoutes = require('./taskRoutes');
+const prisma = require('./prisma/db');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
-const taskRoutes = require('./taskRoutes');
-app.use('/api', taskRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
