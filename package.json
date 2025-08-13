@@ -7,10 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tdd": "./tdd.sh",
-    "week6a": "nodemon ./week-6-postgreSQL/app.js",
-    "week6a:start": "node ./week-6-postgreSQL/app.js",
-    "week6b": "nodemon ./week-6-prisma/app.js",
-    "week6b:start": "node ./week-6-prisma/app.js"
+    "dev": "nodemon app.js"
+   
   },
   "author": "Code the Dream",
   "license": "ISC",
