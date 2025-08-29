@@ -1,6 +1,6 @@
 require("dotenv").config();
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-const prisma = require("../db/prisma");
+const prisma = require("../prisma/db");
 const httpMocks = require("node-mocks-http");
 const EventEmitter = require("events").EventEmitter;
 const jwt = require("jsonwebtoken");
