@@ -122,11 +122,13 @@ describe("testing login, register, and logoff", () => {
 
 describe("testing task creation", () => {
   it("If you have a valid user id, create() succeeds (res.statusCode should be 201).", async () => {
+    // Set global user_id (simulating login)
+    global.user_id = user1;
+    
     const req = httpMocks.createRequest({
       method: "POST",
       body: { title: "first task" },
     });
-    req.query = { user_id: user1 };
     saveRes = httpMocks.createResponse();
     await create(req, saveRes);
     expect(saveRes.statusCode).toBe(201);
@@ -149,10 +151,12 @@ describe("testing task creation", () => {
 
 describe("getting created tasks", () => {
   it("If you use user1's id, index returns a 200 statusCode.", async () => {
+    // Set global user_id (simulating login)
+    global.user_id = user1;
+    
     const req = httpMocks.createRequest({
       method: "GET",
     });
-    req.query = { user_id: user1 };
     saveRes = httpMocks.createResponse();
     await index(req, saveRes);
     expect(saveRes.statusCode).toBe(200);
@@ -172,20 +176,24 @@ describe("getting created tasks", () => {
   });
   
   it("If get the list of tasks using the userId from user2, you get a 404.", async () => {
+    // Set global user_id to user2 (simulating different user login)
+    global.user_id = user2;
+    
     const req = httpMocks.createRequest({
       method: "GET",
     });
-    req.query = { user_id: user2 };
     saveRes = httpMocks.createResponse();
     await index(req, saveRes);
     expect(saveRes.statusCode).toBe(404);
   });
   
   it("You can retrieve the first array object using the `show()` method of the controller.", async () => {
+    // Set global user_id back to user1 (simulating user1 login)
+    global.user_id = user1;
+    
     const req = httpMocks.createRequest({
       method: "GET",
     });
-    req.query = { user_id: user1 };
     req.params = { id: saveTaskId };
     saveRes = httpMocks.createResponse();
     await show(req, saveRes);
@@ -195,10 +203,12 @@ describe("getting created tasks", () => {
 
 describe("testing the update and delete of tasks.", () => {
   it("User1 can set the task to isCompleted: true.", async () => {
+    // Ensure global user_id is set to user1
+    global.user_id = user1;
+    
     const req = httpMocks.createRequest({
       method: "PATCH",
     });
-    req.query = { user_id: user1 };
     req.params = { id: saveTaskId };
     req.body = { isCompleted: true };
     saveRes = httpMocks.createResponse();
@@ -207,10 +217,12 @@ describe("testing the update and delete of tasks.", () => {
   });
   
   it("User2 can't do this.", async () => {
+    // Set global user_id to user2 (simulating different user login)
+    global.user_id = user2;
+    
     const req = httpMocks.createRequest({
       method: "PATCH",
     });
-    req.query = { user_id: user2 };
     req.params = { id: saveTaskId };
     req.body = { isCompleted: true };
     saveRes = httpMocks.createResponse();
@@ -219,10 +231,10 @@ describe("testing the update and delete of tasks.", () => {
   });
   
   it("User2 can't delete this task.", async () => {
+    // global.user_id is already set to user2 from previous test
     const req = httpMocks.createRequest({
       method: "DELETE",
     });
-    req.query = { user_id: user2 };
     req.params = { id: saveTaskId };
     saveRes = httpMocks.createResponse();
     await deleteTask(req, saveRes);
@@ -230,10 +242,12 @@ describe("testing the update and delete of tasks.", () => {
   });
   
   it("User1 can delete this task.", async () => {
+    // Set global user_id back to user1 (simulating user1 login)
+    global.user_id = user1;
+    
     const req = httpMocks.createRequest({
       method: "DELETE",
     });
-    req.query = { user_id: user1 };
     req.params = { id: saveTaskId };
     saveRes = httpMocks.createResponse();
     await deleteTask(req, saveRes);
@@ -241,10 +255,10 @@ describe("testing the update and delete of tasks.", () => {
   });
   
   it("Retrieving user1's tasks now returns a 404.", async () => {
+    // global.user_id is already set to user1 from previous test
     const req = httpMocks.createRequest({
       method: "GET",
     });
-    req.query = { user_id: user1 };
     saveRes = httpMocks.createResponse();
     await index(req, saveRes);
     expect(saveRes.statusCode).toBe(404);
