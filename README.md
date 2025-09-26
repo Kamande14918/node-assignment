@@ -103,3 +103,7 @@ These are the steps:
 - `package.json`: Single package file for the whole project.
 - The repository is structured for cloud deployment.
 
+## License
+
+Copyright (c) 2025 Code the Dream
+This project is licensed under the MIT License – see the [LICENSE](./LICENSE) file for details.

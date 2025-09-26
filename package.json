@@ -12,7 +12,7 @@
     "dev": "nodemon app"
   },
   "author": "Code the Dream",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
