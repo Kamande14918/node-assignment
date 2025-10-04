@@ -1,5 +1,5 @@
 require("dotenv").config();
-const prisma = require("../week-6-prisma/prisma/db");
+const prisma = require("../prisma/db");
 const httpMocks = require("node-mocks-http");
 const {
   index,
@@ -7,8 +7,8 @@ const {
   create,
   update,
   deleteTask,
-} = require("../week-6-prisma/controllers/taskController");
-const { login, register, logoff } = require("../week-6-prisma/controllers/userController");
+} = require("../controllers/taskController");
+const { login, register, logoff } = require("../controllers/userController");
 
 // a few useful globals
 let user1 = null;
@@ -128,6 +128,16 @@ describe("testing login, register, and logoff", () => {
 });
 
 describe("testing task creation", () => {
+  it("Login before testing tasks", async () => {
+    const req = httpMocks.createRequest({
+      method: "POST",
+      body: { email: "jim@sample.com", password: "Pa$$word20" },
+    });
+    saveRes = httpMocks.createResponse();
+    await login(req, saveRes);
+    expect(saveRes.statusCode).toBe(200);
+  });
+
   it("If you have a valid user id, create() succeeds (res.statusCode should be 201).", async () => {
     const req = httpMocks.createRequest({
       method: "POST",
