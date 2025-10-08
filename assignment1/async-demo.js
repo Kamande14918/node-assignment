@@ -1,16 +1,11 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs").promises;
 
-
-// Write a sample file for demonstration
-
-// 1. Callback style
-
-
-  // Callback hell example (test and leave it in comments):
-
-
-  // 2. Promise style
-
-
-      // 3. Async/Await style
+async function readFile(filePath){
+    try {
+        const data = await fs.readFile(filePath,"utf8");
+        console.log("File content:", data);
+    } catch (error){
+        console.error("Error reading file:", error);
+    }
+}
+readFile("myfile.txt");
