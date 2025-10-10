@@ -3,6 +3,15 @@ const app = express();
 const errorHandler = require("./middlewares/error-handler");
 app.use(errorHandler);
 
+// middleware to parse the request body
+app.use(express.json({limit: "1kb"}));
+// user routes 
+const userRouter = require("./routes/user");
+app.use("/user",userRouter);
+
+
+
+
 // logger middleware (task 5)
 app.use((req,res,next) =>{
     console.log(`method: ${req.method}, url: ${req.url}, time:${new Date().toISOString()}`);
@@ -10,16 +19,16 @@ app.use((req,res,next) =>{
 })
 
 app.get("/", (req, res) =>{
-    res.send("Hello Kennedy, is your progress with the node work please.");
+    res.json({message:"Hello Kennedy, is your progress with the node work please."});
     
 
 });
 app.get("/welcome", (req,res) =>{
-    res.send("Welcome to Code the Dream, we are really excited to have you here Kennedy! Welcome to the team")
+    res.json({message:"Welcome to Code the Dream, we are really excited to have you here Kennedy! Welcome to the team"});
 })
 // post functionality(task  4)
 app.post("/testpost",(req,res) =>{
-    res.send("This is a testpost content, if you see it , your post route works pretty well. ")
+    res.json({message:"This is a testpost content, if you see it , your post route works pretty well. "});
 })
 const port = process.env.PORT || 3000;
 try{
