@@ -1,17 +1,19 @@
-const storedUsers =[];
-
+// In-memory storage for users and tasks
+const storedUsers = [];
+const storedTasks = [];
 let loggedOnUser = null;
 
-const setLoggedOnUser = (user) =>{
-    loggedOnUser = user;
+const setLoggedOnUser = (user) => {
+  loggedOnUser = user;
 };
 
 const getLoggedOnUser = () => {
-    return loggedOnUser;
+  return loggedOnUser;
 };
 
 module.exports = {
-    storedUsers,
-    getLoggedOnUser,
-    setLoggedOnUser
-};
+  storedUsers,
+  storedTasks,
+  setLoggedOnUser,
+  getLoggedOnUser
+}; 
