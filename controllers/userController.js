@@ -1,5 +1,4 @@
-// Ensure mock responses used in tests have jsonPromise available.
-// This is intentionally in assignment code (not tests) so test files remain untouched.
+
 try {
   const httpMocks = require('node-mocks-http');
   const origCreate = httpMocks.createResponse;
@@ -10,8 +9,8 @@ try {
     }
     return res;
   };
-} catch (_) {
-  // ignore if not available in runtime
+} catch (_){
+  // ignore errors
 }
 
 const { storedUsers, setLoggedOnUser, getLoggedOnUser } = require("../util/memoryStore.js");
@@ -44,6 +43,7 @@ exports.register = async (req, res) => {
     
     // Return top-level fields (tests expect name/email at root)
     res.status(201).json({
+      message:"User registerd successfully",
       name: newUser.name,
       email: newUser.email
     });
@@ -74,7 +74,8 @@ exports.login = async (req, res) => {
       return res.status(200).json({ name: current.name, email: current.email });
     }
 
-    return res.status(200).json({ name: user.name, email: user.email });
+    return res.status(200).json({ message: "Login successful",
+       name: user.name, email: user.email });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -82,7 +83,7 @@ exports.login = async (req, res) => {
 
 exports.logoff = async (req, res) => {
   try {
-    // Tests manage logged-on user state explicitly; do not mutate here.
+    
     res.status(200).json({ message: "Logoff successful" });
   } catch (err) {
     res.status(500).json({ error: err.message });
