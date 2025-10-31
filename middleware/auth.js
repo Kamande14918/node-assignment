@@ -1,9 +1,11 @@
-const { getLoggedOnUser } = require('../util/memoryStore');
+const { StatusCodes} = require('http-status-codes');
 
-module.exports = (req, res, next) => {
-  const user = getLoggedOnUser();
-  if (!user) {
-    return res.status(401).json({ error: 'unauthorized' });
+module.exports = ( req, res, next) =>{
+  if(!global.user_id){
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json({message:"Unauthorized access Ken."});
+  }else{
+    next();                                                                       ``
   }
-  next();
-};
+}
