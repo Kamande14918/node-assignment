@@ -1,12 +1,15 @@
-const {statusCodes}= require('http-status-codes');
-const errorMiddleware = (err, req, res, next) =>{
-  console.log("Internal server error:",error.constructor.name,JSON.stringify(err,["name","message","stack"]));
+const { StatusCodes} = require("http-status-codes");
 
-  if(!res.headerSent){
-    return res.status(statusCodes.INTERNAL_SERVER_ERROR).json(
-      "An internal server error occurred!"
-    )
+const errorHandlerMiddleware = (err, req, res, next) =>{
+  console.error("Internal server error:",
+    err.constructor.name,
+    JSON.stringify(err,["name","message","stack"]),
+  );
+  if(!res.headersSent){
+    return res
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
+    .send({error:"An internal server error occurred."})
   }
 }
 
-module.exports = errorMiddleware;
+module.exports = errorHandlerMiddleware;

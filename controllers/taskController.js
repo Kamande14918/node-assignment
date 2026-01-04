@@ -1,143 +1,78 @@
-const { storedTasks, getLoggedOnUser } = require("../util/memoryStore.js");
-const { taskSchema, patchTaskSchema } = require("../validation/taskSchema");
-
-exports.index = async (req, res) => {
-  try {
-    const loggedOnUser = getLoggedOnUser();
-    
-    if (!loggedOnUser) {
-      return res.status(401).json({ error: "User not logged in" });
-    }
-
-    // Get tasks for the logged on user
-    const userTasks = storedTasks.filter(task => task.userId === loggedOnUser.email);
-    
-    if (userTasks.length === 0) {
-      return res.status(404).json({ error: "No tasks found for user" });
-    }
-
-    // Return tasks without userId property (tests expect no userId)
-    const sanitized = userTasks.map(({ userId, ...rest }) => rest);
-    res.status(200).json(sanitized);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+const {StatusCodes} = require("http-status-codes");
+const taskCounter = (() =>{
+  let lastTaskNumber = 0;
+  return () =>{
+    lastTaskNumber += 1;
+    return lastTaskNumber;
   }
-};
+})();
 
-exports.show = async (req, res) => {
-  try {
-    const loggedOnUser = getLoggedOnUser();
-    
-    if (!loggedOnUser) {
-      return res.status(401).json({ error: "User not logged in" });
-    }
+function create(req,res){
+  const newTask = {...req.body, id: taskCounter(), userId:global.user_id.email};
+  global.tasks.push(newTask);
+  const {userId,...saniTizedTask} = newTask;
+  res.json(saniTizedTask);
+}
 
-    const { id } = req.params;
-    const task = storedTasks.find(t => t.id === parseInt(id) && t.userId === loggedOnUser.email);
-    
-    if (!task) {
-      return res.status(404).json({ error: "Task not found" });
-    }
+function index(req, res){
 
-  // Return task without userId
-  const { userId, ...rest } = task;
-  res.status(200).json(rest);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  const userTasks = global.tasks.filter((t) => t.userId ===global.user_id.email);
+  const sanitizedTasks = userTasks.map((task) =>{
+    const {userId,...sanitizedTask} =task
+    return sanitizedTask;
+  })
+  res.json(sanitizedTasks);
+}
+
+function update(req,res){
+   const taskToFind = parseInt(req.params?.id);
+   if(!taskToFind){
+    return res.status(StatusCodes.BAD_REQUEST).json({message:"The task ID passed is not valid."});
+   }
+   const taskIndex = global.tasks.findIndex((t) => t.id ===taskToFind && t.userId === global.user_id.email);
+   if(taskIndex === -1){
+    return res.status(StatusCodes.NOT_FOUND).json({message:"Task not found."})
+   }
+   Object.assign(global.tasks[taskIndex],req.body);
+   const {userId,...sanitizedTask} = global.tasks[taskIndex];
+   res.json(sanitizedTask);
+     
+}
+function show(req,res){
+  const taskToFind = parseInt(req.params?.id);
+  if(!taskToFind){
+    return res.status(StatusCodes.BAD_REQUEST).json({message:"The task ID passed is not valid."});
   }
-};
-
-exports.create = async (req, res) => {
-  try {
-    const loggedOnUser = getLoggedOnUser();
-    
-    if (!loggedOnUser) {
-      return res.status(401).json({ error: "User not logged in" });
-    }
-
-    const { error, value } = taskSchema.validate(req.body);
-    
-    if (error) {
-      return res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.details 
-      });
-    }
-
-    const { title, isCompleted = false } = value;
-    
-    // Create new task
-    const newTask = {
-      id: Date.now(), // Simple ID generation
-      title,
-      isCompleted,
-      userId: loggedOnUser.email
-    };
-    
-  storedTasks.push(newTask);
-
-  // Return new task without userId
-  const { userId: _uid, ...returnTask } = newTask;
-  res.status(201).json(returnTask);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  const task = global.tasks.find((t) => t.id ===taskToFind && t.userId === global.user_id.email);
+  if(!task){
+    return res.status(StatusCodes.NOT_FOUND).json({message:"Task not found"})
+  }  else{
+    const { userId, ...sanitizedTask} = task;
+    res.json(sanitizedTask);
   }
-};
 
-exports.update = async (req, res) => {
-  try {
-    const loggedOnUser = getLoggedOnUser();
-    
-    if (!loggedOnUser) {
-      return res.status(401).json({ error: "User not logged in" });
-    }
+}
 
-    const { id } = req.params;
-    const taskIndex = storedTasks.findIndex(t => t.id === parseInt(id) && t.userId === loggedOnUser.email);
-    
-    if (taskIndex === -1) {
-      return res.status(404).json({ error: "Task not found" });
-    }
-
-    const { error, value } = patchTaskSchema.validate(req.body);
-    
-    if (error) {
-      return res.status(400).json({ 
-        error: "Validation failed", 
-        details: error.details 
-      });
-    }
-
-    // Update task
-  storedTasks[taskIndex] = { ...storedTasks[taskIndex], ...value };
-
-  const { userId: _u, ...updated } = storedTasks[taskIndex];
-  res.status(200).json(updated);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+function deleteTask(req,res){
+  const taskToFind = parseInt(req.params?.id);
+  if(!taskToFind){
+    return res.status(StatusCodes.BAD_REQUEST).json({message:"The task ID passed is not valid."})
   }
-};
-
-exports.deleteTask = async (req, res) => {
-  try {
-    const loggedOnUser = getLoggedOnUser();
-    
-    if (!loggedOnUser) {
-      return res.status(401).json({ error: "User not logged in" });
-    }
-
-    const { id } = req.params;
-    const taskIndex = storedTasks.findIndex(t => t.id === parseInt(id) && t.userId === loggedOnUser.email);
-    
-    if (taskIndex === -1) {
-      return res.status(404).json({ error: "Task not found" });
-    }
-
-    // Delete task
-    storedTasks.splice(taskIndex, 1);
-    
-    res.status(200).json({ message: "Task deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  
+  const taskIndex = global.tasks.findIndex((t) => t.id === taskToFind && t.userId === global.user_id.email);
+  if(taskIndex === -1){
+    return res.status(StatusCodes.NOT_FOUND).json({message:"Task not found."})
   }
-}; 
+  
+  const task ={ user_id, ...global.tasks[taskIndex]} //make a copy without userId
+  global.tasks.splice(taskIndex,1);
+  res.json({message:"Task deleted successfully.",task})
+}
+
+module.exports = {
+  create,
+  index,
+  update,
+  show,
+  deleteTask
+}

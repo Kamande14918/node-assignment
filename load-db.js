@@ -1,7 +1,36 @@
 require("dotenv").config();
 const pg = require("pg");
 const { Client } = pg;
-const client = new Client({ connectionString: process.env.DB_URL });
+
+// Validate DB_URL early with clear guidance
+const rawDbUrl = process.env.DB_URL;
+if (!rawDbUrl || typeof rawDbUrl !== "string" || !rawDbUrl.trim()) {
+  console.error(
+    "Missing DB_URL. Create a .env file with your Neon Postgres URL (see README)."
+  );
+  process.exit(1);
+}
+
+// Trim and ensure SSL for Neon
+const connectionString = rawDbUrl.trim();
+let client;
+try {
+  // Basic sanity check: URL must include a password portion
+  const parsed = new URL(connectionString);
+  if (typeof parsed.password !== "string" || parsed.password.length === 0) {
+    throw new Error(
+      "DB_URL is missing a password. Copy the full connection string from Neon (Show password)."
+    );
+  }
+
+  client = new Client({
+    connectionString,
+    ssl: connectionString.includes('localhost') ? false : { rejectUnauthorized: false }, // SSL only for remote databases
+  });
+} catch (e) {
+  console.error("Invalid DB_URL.", e.message);
+  process.exit(1);
+}
 const fs = require("fs");
 const csv = require("csv-parser");
 let stmt;
@@ -93,7 +122,10 @@ async function doTables() {
     stmt = `SELECT setval('line_items_line_item_id_seq', (SELECT MAX(line_item_id) FROM line_items));`
     await client.query(stmt)
   } catch (error) {
-    console.log(`Error loading data: ${error}`);
+    console.error("Error loading data:", error?.message || error);
+    if (error?.stack) {
+      console.error(error.stack);
+    }
   } finally {
     await client.end();
   }
