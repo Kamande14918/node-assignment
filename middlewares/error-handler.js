@@ -5,6 +5,11 @@ const errorHandlerMiddleware = (err, req, res, next) =>{
     err.constructor.name,
     JSON.stringify(err,["name","message","stack"]),
   );
+  if(err.code === "ENCONNREFUSED" && err.port === 5432){
+    // the postgresql port 
+    console.log("The database connection was refused. Is your database server running?")
+    
+  }
   if(!res.headersSent){
     return res
     .status(StatusCodes.INTERNAL_SERVER_ERROR)

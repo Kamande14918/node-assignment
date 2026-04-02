@@ -21,7 +21,7 @@
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "http-status-codes": "^2.3.0",
-    "joi": "^18.0.1",
+    "joi": "^18.0.2",
     "node-mocks-http": "^1.17.2",
     "os": "^0.1.2",
     "prettier": "^3.5.3",
@@ -36,7 +36,7 @@
     "jest": "^30.0.4",
     "node-mocks-http": "^1.17.2",
     "nodemon": "^3.1.11",
-    "pg": "^8.16.3",
+    "pg": "^8.20.0",
     "pg-cursor": "^2.13.1",
     "prettier": "^3.5.3",
     "supertest": "^7.1.3"
