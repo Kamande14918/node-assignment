@@ -5,6 +5,7 @@ const notFound = require("./middlewares/not-found");
 const userRouter = require("./routes/userRoutes");
 const authMiddleware = require("./middlewares/auth");
 const taskRouter = require("./routes/taskRoutes");
+const analyticsRouter = require("./routes/analticsRoutes");
 
 global.user_id = null;
 const prisma = require("./db/prisma")
@@ -33,7 +34,8 @@ app.post("/testpost",(req,res) =>{
   res.send({message:"You are on the right track!"})
 })
 app.use("/api/users",userRouter);
-app.use("/api/tasks",authMiddleware,taskRouter)
+app.use("/api/tasks",authMiddleware,taskRouter);
+app.use("/api/analytics", authMiddleware,analyticsRouter);
 
 app.use(errorHandler)
 app.use(notFound)

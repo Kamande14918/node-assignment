@@ -28,25 +28,49 @@ async function register(req, res, next){
 
   value.hashedPassword = await hashPassword(value.password);
   const { name, email, hashedPassword} = value;
-  let user;
-  try {
-    user = await prisma.user.create({
-      data:{
-        name,
-        email,
-        hashedPassword
-      },
-      select: {
+   // Remove plain password from the value
+   delete value.password;
+   try{
+    const result = await prisma.$transaction(async (tx)=>{
+      // create user account 
+      const newUser = await tx.user.create({
+        data:{name, email, hashedPassword},
+        select:{id: true, name: true, email: true}
+      });
+      // create three welcome tasks using createMany
+    const welcomeTaskData =[
+      {title:"Complete your profile",userId: newUser.id, priority:"medium"},
+      {title:"Add your first task", userId: newUser.id, priority:"High"},
+      {title:"Explore the app", userId: newUser.id, priority:"low" }
+    ];
+
+   await tx.task.createMany({
+    data: welcomeTaskData
+   })
+
+  //  Fetch the created tasks to return them
+    const welcomeTasks = await tx.task.findMany({
+      where: {userId: newUser.id},
+      select:{
         id: true,
-        email: true,
-        name: true
+        title: true,
+        isCompleted: true,
+        userId: true,
+        priority: true
       }
     });
-    global.user_id = user.id;
+    return {user: newUser, welcomeTasks}
+    });
+
+    // Store the user ID globally for the session management 
+    global.user_id = result.user.id
     
-    return res.status(StatusCodes.CREATED).json({user: {id: user.id, name: user.name, email: user.email}, });
-
-
+     res.status(StatusCodes.CREATED).json({
+      user: result.user,
+      welcomeTasks: result.welcomeTasks,
+      transactionStatus: "success"
+     })
+     return;
   } catch(err){
     if(err.name === "PrismaClientKnownRequestError" && err.code === "P2002"){
       return res.status(StatusCodes.CONFLICT).json({message:"User with this email already exists."})
@@ -88,8 +112,44 @@ async function logon(req,res){
      return res.status(StatusCodes.OK).json({user: sanitizedUser})
   } catch(err){
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:"An error occurred during logon.", error: err.message})
+  }
 }
+
+async function show(req,res){
+  const userId = parseInt(req.params.id);
+  if(isNaN(userId)){
+    return res.status(StatusCodes.BAD_REQUEST).json({message:"The user ID passed is not valid."})
+  }
+  try{
+    const user = await prisma.user.findUnique({
+      where: { id: userId},
+      select:{
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        Tasks: {
+          select: {
+            id: true,
+            title: true,
+            isCompleted: true,
+            priority: true,
+            createdAt: true
+          },
+          take: 5,
+          orderBy: {createdAt: "desc"}
+        }
+      }
+    });
+    if(!user){
+      return res.status(StatusCodes.NOT_FOUND).json({message:"User not found."})
+    }
+    res.json({user});
+  } catch(err){
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({message:"An error occurred while fetching user details.", error: err.message})
+  }
 }
+
 function logoff(req,res){
   global.user_id = null; //user is logged off
   return res.status(StatusCodes.OK).json({message:"User logged off successfully"})
@@ -98,5 +158,7 @@ function logoff(req,res){
 module.exports = {
   register,
   logon,
+  show,
   logoff
+  
 };
